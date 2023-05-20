@@ -1,38 +1,45 @@
-import {StyleSheet, Appearance, SafeAreaView} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import {Text, SafeAreaView, Appearance, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {Colors} from './src/constants/Colors';
 import MainScreen from './src/screens/MainScreen';
 
-const App = () => {
-  const [colorScheme, setColorScheme] = useState(() =>
-    Appearance.getColorScheme(),
-  );
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-  const handleColorScheme = useCallback(theme => {
-    setColorScheme(theme.colorScheme);
+const App = () => {
+  const [colorScheme, setColorScheme] = useState(Appearance.getColorScheme());
+  useEffect(() => {
+    AsyncStorage.getItem('theme').then(theme => {
+      if (theme !== null) {
+        setColorScheme(theme);
+      } else {
+        Appearance.addChangeListener(theme => {
+          setColorScheme(theme.colorScheme);
+        });
+      }
+    });
   }, []);
 
-  useEffect(() => {
-    const darkMode = Appearance.addChangeListener(handleColorScheme);
-    return () => {
-      darkMode.remove();
-    };
-  }, [handleColorScheme]);
+  const setTheme = theme => {
+    setColorScheme(theme);
+    AsyncStorage.setItem('theme', theme);
+  };
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        colorScheme === 'dark'
-          ? {backgroundColor: Colors.dark.background}
-          : {backgroundColor: Colors.light.background},
-      ]}>
-      <MainScreen theme={colorScheme} setTheme={setColorScheme} />
+      style={
+        colorScheme === 'dark' ? styles.darkContainer : styles.lightContainer
+      }>
+      <MainScreen theme={colorScheme} setTheme={setTheme} />
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
-  container: {
+  darkContainer: {
+    backgroundColor: Colors.dark.background,
+    flex: 1,
+  },
+  lightContainer: {
+    backgroundColor: Colors.light.background,
     flex: 1,
   },
 });
