@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Image, Pressable} from 'react-native';
+import {View, StyleSheet, Image, Pressable} from 'react-native';
 import React from 'react';
 import {Colors} from '../constants/Colors';
 
@@ -6,11 +6,17 @@ import ic_sun_outline from '@images/ic_sun_outline.png';
 import ic_moon_filled from '@images/ic_moon_filled.png';
 import ic_sun_filled from '@images/ic_sun_filled.png';
 import ic_moon_outline from '@images/ic_moon_outline.png';
+import {useContext} from 'react';
+import {AppContext} from '../../App';
 
-const ModeContainer = props => {
-  const {theme, setTheme} = props;
-
+const ModeContainer = () => {
+  const {state, setState} = useContext(AppContext);
+  const {theme} = state;
   const isDarkMode = theme === 'dark';
+
+  const setTheme = theme => {
+    setState({...state, theme: theme});
+  };
 
   return (
     <View style={[styles.container, !isDarkMode && styles.lightContainer]}>

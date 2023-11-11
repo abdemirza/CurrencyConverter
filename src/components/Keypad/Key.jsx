@@ -1,17 +1,32 @@
 import {View, Text, StyleSheet, Pressable, Image} from 'react-native';
-import React from 'react';
+import React, {useContext} from 'react';
 
 import ic_delete from '@images/ic_delete.png';
 import {Colors} from '../../constants/Colors';
+import {AppContext} from '../../../App';
+import {convertCurrency} from '../../functions/helperFunctions';
 
 const Key = props => {
-  const {number, theme, input, setInput} = props;
+  const {number} = props;
+  const {state, setState} = useContext(AppContext);
+  const {theme, input, inputCurrency, outputCurrency, exchangeRates} = state;
   const isDarkMode = theme === 'dark';
 
   const onPressHandler = () => {
     if (number === '-') {
       setInput(input.substr(0, input.length - 1));
     } else setInput(input + number);
+  };
+
+  const setInput = updatedInput => {
+    const convertedAmt = convertCurrency(
+      updatedInput,
+      inputCurrency,
+      outputCurrency,
+      exchangeRates,
+    );
+
+    setState({...state, input: updatedInput, output: convertedAmt});
   };
 
   if (number === undefined) return <View style={styles.container} />;
@@ -51,7 +66,7 @@ const styles = StyleSheet.create({
   },
   number: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Roboto-Black',
   },
 });
 export default Key;
